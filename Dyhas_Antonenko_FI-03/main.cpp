@@ -93,7 +93,22 @@ public:
 
   void search(string where_keyword)
   {
-    if (index.count(where_keyword) != 0)
+    if (coll.size() == 0) {cout << "The collection is empty." << endl << endl; }
+    else if (where_keyword == "")
+    {
+      cout << "All documents:" << endl;
+
+      int t = 0;
+      cout << "[d" << t;
+      t++;
+
+      for( ; t < coll.size(); t++)
+      {
+        cout << ", " << 'd' << t;
+      }
+      cout << ']';
+    }
+    else if (index.count(where_keyword) != 0)
     {
       cout << '\"' << where_keyword << "\" :" << endl;
 
@@ -149,11 +164,18 @@ int execute_command()
 {
   string cmd1 = next_command_token();
 
-    if(to_lower(cmd1) == "exit" || to_lower(cmd1) =="\nexit") 
+    if(to_lower(cmd1) == "exit" || to_lower(cmd1) == "\nexit") 
     {
-      char end;
-      if(cin.get(end) && end == ';') {return 1;}
-      else {cout << "Unknow command \"" << cmd1 << end << "\"." << endl; return 0;}
+      string end = next_command_token();
+
+      if(end == ";") {return 1;}
+      else 
+      {
+        string terminate;
+        getline(cin, terminate, ';');
+        cout << "Unknow command \"" << cmd1 << end << "\"." << endl; 
+        return 0;
+      }
     }
 
     if(to_lower(cmd1) == "create")
@@ -164,13 +186,21 @@ int execute_command()
       {
         char symb;
         cin.get(symb);
+        string terminate;
+        getline(cin, terminate, ';');
         cout << "Unexpected symbol \'" << symb << "\'." << endl; return 0;
       }
       else
       {
         string end = next_command_token();
 
-        if(end != ";") {cout << "Expected closing \';\' instead of \"" << end << "\"." << endl; return 0;}
+        if(end != ";") 
+        {
+          string terminate;
+          getline(cin, terminate, ';');
+          cout << "Expected closing \';\' instead of \"" << terminate << "\"." << endl; 
+          return 0;
+        }
         else
         {
           database[name].name = name;
@@ -185,24 +215,41 @@ int execute_command()
 
       if(name == "") 
       {
-        char symb;
-        cin.get(symb);
-        cout << "Unexpected symbol \'" << symb << "\'." << endl; return 0;
+        string terminate;
+        getline(cin, terminate, ';');
+        cout << "Unexpected symbol ->\'" << terminate << "\'." << endl; return 0;
       }
       else
       {
         string next = next_command_token();
 
-        if(next != "") {cout << "Unexpected symbol \'" << next << "\'." << endl; return 0;}
+        if(next != "") 
+        {
+          if(next != ";")
+          {
+            string terminate;
+            getline(cin, terminate, ';');
+          }
+          cout << "Unexpected symbol \'" << next << "\'." << endl; 
+          return 0;
+        }
 
-        if(cin.peek() != '\"') {cout << "Unexpected symbol \'" << cin.peek() << "\'." << endl; return 0;}
+        if(cin.peek() != '\"') 
+        {
+          string terminate;
+          getline(cin, terminate, ';');
+          cout << "Unexpected symbol ->\'" << terminate << "\'." << endl; 
+          return 0;
+        }
 
         string text;
 
         getline(cin, text, ';');
         
+        auto t = text.end() - 1;
+        while (isspace(*t)) {--t;}
 
-        if(*(text.end() - 1) != '\"') {cout << "Expected closing \" before ;" << endl; return 0;}
+        if(*t != '\"') {cout << "Expected closing \" before ;" << endl; return 0;}
 
         if (database[name].name == "") {database[name].name = name;}
 
@@ -215,15 +262,21 @@ int execute_command()
 
       if(name == "") 
       {
-        char symb;
-        cin.get(symb);
-        cout << "Unexpected symbol \'" << symb << "\'." << endl; return 0;
+        string terminate;
+        getline(cin, terminate, ';');
+        cout << "Unexpected symbol \'" << terminate << "\'." << endl; return 0;
       }
       else
       {
         string end = next_command_token();
 
-        if(end != ";") {cout << "Expected closing \';\' instead of \"" << end << "\"." << endl; return 0;}
+        if(end != ";") 
+        {
+          string terminate;
+          getline(cin, terminate, ';');
+          cout << "Expected closing \';\' instead of ->\"" << terminate << "\"." << endl; 
+          return 0;
+        }
         else
         {
           database[name].print_index();
@@ -237,24 +290,42 @@ int execute_command()
 
       if(name == "") 
       {
-        char symb;
-        cin.get(symb);
-        cout << "Unexpected symbol \'" << symb << "\'." << endl; return 0;
+        string terminate;
+        getline(cin, terminate, ';');
+        cout << "Unexpected symbol ->\'" << terminate << "\'." << endl; return 0;
       }
       else
       {
+        if(database.count(name) == 0)
+        {
+          string terminate;
+          getline(cin, terminate, ';');
+          cout << "Collection \"" << name << "\" does not exist." << endl;
+          return 0;
+        }
+
         string where = next_command_token();
 
         if(where == ";") 
         {
-          database[name].print_index();
+          database[name].search("");
           return 0;
         }
         else if(to_lower(where) == "where")
         {
           string next = next_command_token();
 
-          if(next != "") {cout << "Unexpected symbol \'" << next << "\'." << endl; return 0;}
+          if(next != "") 
+          {
+            if(next != ";")
+            {
+              string terminate;
+              getline(cin, terminate, ';');
+            }
+
+            cout << "Unexpected symbol \'" << next << "\'." << endl; 
+            return 0;
+          }
 
           if(cin.peek() != '\"') {cout << "Unexpected symbol \'" << cin.peek() << "\'." << endl; return 0;}
 
@@ -266,12 +337,21 @@ int execute_command()
 
           database[name].search(text.substr(1,text.length() - 2));
         } 
-        else {cout << "Unexpected symbol \'" << cin.peek() << "\'." << endl; return 0;}
+        else 
+        {
+          string terminate;
+          getline(cin, terminate, ';');
+          cout << "Unexpected symbol ->\'" << where << "\'." << endl; 
+          return 0;
+        }
       }
     }
     else
     {
-      cout << "Unknow command \"" << cmd1 << "\"." << endl; return 0;
+      string terminate;
+      getline(cin, terminate, ';');
+      cout << "Unknow command \"" << cmd1 << "\"." << endl; 
+      return 0;
     }
 
     return 0;
